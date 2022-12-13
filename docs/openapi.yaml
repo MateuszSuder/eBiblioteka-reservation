@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Reservation service
+  description: |-
+  version: 1.0.0
+servers:
+  - url: https://localhost/api/reservation
+    description: Local development
+paths:
+  /reservation:
+    get:
+      description: Lista rezerwacji użytkownika zalogowanego
+      responses:
+        200:
+          description: Lista rezerwacji zwrócona
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReservationList"
+        401:
+          description: Brak tokena
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericError"
+  /reservation/{userId}:
+    get:
+      description: Lista rezerwacji użytkownika
+      responses:
+        200:
+          description: Lista rezerwacji zwrócona
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReservationList"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          description: Użytkownik nieznaleziony
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericError"
+  /reservation/{bookId}:
+    post:
+      description: Rezerwacja książki
+      responses:
+        201:
+          description: Rezerwacja utworzona
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reservation"
+        401:
+          description: Brak tokena
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenericError"
+        403:
+          $ref: "#/components/responses/Forbidden"
+  /reservation/{reservationId}:
+    delete:
+      description: Usunięcie rezerwacji (Administrator/Bibliotekarz może usunąć nieswoją). Usunięcie = zmiana statusu
+      responses:
+        200:
+          description: Rezerwacja usunięta
+        403:
+          $ref: "#/components/responses/Forbidden"
+  /reservations:
+    get:
+      description: Lista wszystkich rezerwacji
+      parameters:
+        - $ref: "#/components/parameters/ReservationStatus"
+      responses:
+        200:
+          description: Lista rezerwacji zwrócona
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReservationList"
+        403:
+          $ref: "#/components/responses/Forbidden"
+components:
+  responses:
+    Forbidden:
+      description: Brak uprawnień
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericError"
+  parameters:
+    ReservationStatus:
+      in: query
+      name: status
+      description: Filtorowanie po statusie. Tylko jeden do wyboru
+      schema:
+        type: string
+        enum: [ reserved, cancelled, borrowed, expired ]
+  schemas:
+    Reservation:
+      type: object
+      properties:
+        _id:
+          type: string
+        bookId:
+          type: string
+        userId:
+          type: string
+        validTill:
+          type: string
+          pattern: /([0-9]{4})-(?:[0-9]{2})-([0-9]{2})/
+          example: "2019-05-17"
+        status:
+          type: string
+          enum: [reserved, cancelled, borrowed, expired]
+    ReservationList:
+      type: object
+      properties:
+        reservations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Reservation"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    PaginationInput:
+      type: object
+      properties:
+        offset:
+          description: Początkowy index zwracanych wartości
+          type: number
+        limit:
+          description: Ilość wartości
+          type: number
+    Pagination:
+      type: object
+      allOf:
+        - properties:
+            count:
+              description: Ilość możliwych wartości
+              type: number
+        - $ref: "#/components/schemas/PaginationInput"
+    GenericError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
