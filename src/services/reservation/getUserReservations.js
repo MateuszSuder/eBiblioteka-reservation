@@ -16,5 +16,5 @@ export default async (req, res) => {
 
     // Find reservations with userId === userId
 
-    res.status(501).send(`Block user ${id}`);
+    res.status(501).send(`Get user reservations ${id}`);
 }
