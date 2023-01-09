@@ -4,12 +4,12 @@ info:
   description: |-
   version: 1.0.0
 servers:
-  - url: https://localhost/api/reservation
+  - url: https://localhost/api
     description: Local development
 paths:
   /reservation:
     get:
-      description: Lista rezerwacji użytkownika zalogowanego
+      description: Lista wszystkich rezerwacji
       responses:
         200:
           description: Lista rezerwacji zwrócona
@@ -17,15 +17,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ReservationList"
-        401:
-          description: Brak tokena
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GenericError"
-  /reservation/{userId}:
+        403:
+          $ref: "#/components/responses/Forbidden"
+  /reservation/{id}:
     get:
       description: Lista rezerwacji użytkownika
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Id użytkownika
+          schema:
+            type: string
       responses:
         200:
           description: Lista rezerwacji zwrócona
@@ -41,9 +44,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GenericError"
-  /reservation/{bookId}:
+    delete:
+      description: Usunięcie rezerwacji (Administrator/Bibliotekarz może usunąć nieswoją). Usunięcie = zmiana statusu
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Id rezerwacji
+          schema:
+            type: string
+      responses:
+        200:
+          description: Rezerwacja usunięta
+        403:
+          $ref: "#/components/responses/Forbidden"
+  /reservation/{id}/{bookId}:
     post:
       description: Rezerwacja książki
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          description: Id książki
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: Id użytkownika
+          schema:
+            type: string
       responses:
         201:
           description: Rezerwacja utworzona
@@ -59,28 +89,7 @@ paths:
                 $ref: "#/components/schemas/GenericError"
         403:
           $ref: "#/components/responses/Forbidden"
-  /reservation/{reservationId}:
-    delete:
-      description: Usunięcie rezerwacji (Administrator/Bibliotekarz może usunąć nieswoją). Usunięcie = zmiana statusu
-      responses:
-        200:
-          description: Rezerwacja usunięta
-        403:
-          $ref: "#/components/responses/Forbidden"
-  /reservations:
-    get:
-      description: Lista wszystkich rezerwacji
-      parameters:
-        - $ref: "#/components/parameters/ReservationStatus"
-      responses:
-        200:
-          description: Lista rezerwacji zwrócona
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ReservationList"
-        403:
-          $ref: "#/components/responses/Forbidden"
+
 components:
   responses:
     Forbidden:
@@ -96,7 +105,7 @@ components:
       description: Filtorowanie po statusie. Tylko jeden do wyboru
       schema:
         type: string
-        enum: [ reserved, cancelled, borrowed, expired ]
+        enum: [ RESERVED, CANCELLED, BORROWED, EXPIRED ]
   schemas:
     Reservation:
       type: object
@@ -121,8 +130,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Reservation"
-        pagination:
-          $ref: "#/components/schemas/Pagination"
     PaginationInput:
       type: object
       properties:
