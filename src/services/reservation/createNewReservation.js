@@ -8,12 +8,15 @@ import internalFetcher from "../../http/internalFetcher.js";
 export default async (req, res) => {
     const { userId, bookId } = req.params;
 
-    // Check if book exists in system
-    const book = await internalFetcher("book", "GET", `/${bookId}`)
+    try {
+        // Check if book exists in system
+        const book = await internalFetcher("book", "GET", `/${bookId}`);
+        if(!book) return genericErrorResponse(res, null, 404);
 
-    if(!book) return genericErrorResponse(res, null, 404);
+        // Create reservation
 
-    // Create reservation
-
-    res.status(501).send(`Create reservation ${userId} ${bookId}`);
+        res.status(501).send(`Create reservation ${userId} ${bookId}`);
+    } catch (e) {
+        return genericErrorResponse(res, e, 500);
+    }
 }
