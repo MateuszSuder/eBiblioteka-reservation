@@ -17,6 +17,6 @@ export default async (req, res) => {
 
         res.status(501).send(`Create reservation ${userId} ${bookId}`);
     } catch (e) {
-        return genericErrorResponse(res, e, 500);
+        return genericErrorResponse(res, "Internal error", 500);
     }
 }

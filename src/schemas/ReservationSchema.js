@@ -19,3 +19,5 @@ const ReservationSchema = new Schema({
         default: "RESERVED"
     }
 })
+
+export default mongoose.model("Reservation", ReservationSchema);

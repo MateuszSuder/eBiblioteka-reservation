@@ -6,9 +6,9 @@ import genericErrorResponse from "../../utils/genericErrorResponse.js";
  */
 export default async (req, res) => {
     const { id: userId } = req.params;
-    const { _id } = req.user;
 
-    if(req.user.role === "USER") {
+    if(req.user && req.user.role === "USER") {
+        const { _id } = req.user;
         if(userId !== _id) {
             return genericErrorResponse(res, null, 403);
         }
@@ -16,5 +16,5 @@ export default async (req, res) => {
 
     // Find reservations with userId === userId
 
-    res.status(501).send(`Get user reservations ${id}`);
+    res.status(501).send(`Get user reservations ${userId}`);
 }
