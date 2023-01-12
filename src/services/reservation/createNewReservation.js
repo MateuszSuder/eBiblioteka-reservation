@@ -7,7 +7,7 @@ import ReservationSchema from "../../schemas/ReservationSchema.js";
  * @param {e.Response} res
  */
 export default async (req, res) => {
-    const { userId, bookId } = req.params;
+    const { id: userId, bookId } = req.params;
 
     if(req.user && req.user._id !== userId) {
         return genericErrorResponse(res, null, 403);
@@ -27,6 +27,8 @@ export default async (req, res) => {
             bookId,
             validTill: t
         })
+        await reservation.save();
+
         res.status(201).send(reservation);
     } catch (e) {
         return genericErrorResponse(res, "Internal error", 500);
