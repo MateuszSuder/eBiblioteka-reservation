@@ -19,7 +19,9 @@ export default async (req, res) => {
 
     // Find reservations with userId === userId
     try {
-        const reservations = await ReservationSchema.find();
+        const reservations = await ReservationSchema.find({
+            userId
+        });
 
         return res.status(200).json({reservations});
     } catch (e) {
