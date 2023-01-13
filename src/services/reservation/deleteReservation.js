@@ -1,5 +1,6 @@
 import genericErrorResponse from "../../utils/genericErrorResponse.js";
 import ReservationSchema from "../../schemas/ReservationSchema.js";
+import mongooseErrorResponse from "../../utils/mongooseErrorResponse.js";
 
 /**
  * @param {e.Request} req
@@ -24,16 +25,6 @@ export default async (req, res) => {
 
         res.status(200).send(null);
     } catch (e) {
-
+        return mongooseErrorResponse(res, e);
     }
-
-    // Check if reservation belongs to user requesting, but only if his role is user
-
-    if(role === "USER") {
-        // ...
-    }
-
-    // Return reservations that matches userId
-
-    res.status(501).send(`Delete reservation ${reservationId}`);
 }
