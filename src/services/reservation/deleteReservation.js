@@ -19,8 +19,9 @@ export default async (req, res) => {
 
         if(req.user && req.user.role === "USER" && reservation.userId !== req.user.userId) return genericErrorResponse(res, null, 403);
 
-        await ReservationSchema.findByIdAndDelete(
-            {_id: reservationId}
+        await ReservationSchema.findOneAndUpdate(
+            {_id: reservationId},
+            {status: "CANCELLED"}
         )
 
         res.status(200).send(null);
