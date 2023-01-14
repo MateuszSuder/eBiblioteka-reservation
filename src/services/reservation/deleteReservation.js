@@ -17,7 +17,7 @@ export default async (req, res) => {
 
         if(!reservation) return genericErrorResponse(res, "Rezerwacja nieznaleziona", 404);
 
-        if(req.user && req.user.role === "USER" && reservation.userId !== req.user.userId) return genericErrorResponse(res, null, 403);
+        if(req.user && req.user.role === "USER" && reservation.userId.toString() !== req.user._id) return genericErrorResponse(res, null, 403);
 
         await ReservationSchema.findOneAndUpdate(
             {_id: reservationId},
